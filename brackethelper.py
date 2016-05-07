@@ -62,22 +62,32 @@ var svg = d3.select("body").append("svg")
  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
-root = treeData[0];
+root = treeData[0].children[0];
+root2 = treeData[0].children[1];
+root3 = treeData[0];
+root3.children = '';
+
   
-update(root);
+update(root,-1,0, false);
+update(root2,1,15, false);
+update(root3,1,-150,true);
 
 function zoomed() {
   container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }
-   
-function update(source) {
+ /*  
+function updateWinner(source) {
+var nodes = tree.nodes(source.name),
+}
+ */  
+function update(source, lefty, topper, winner) {
 
   // Compute the new tree layout.
-  var nodes = tree.nodes(root).reverse(),
+  var nodes = tree.nodes(source).reverse(),
    links = tree.links(nodes);
 
   // Normalize for fixed-depth.
-  nodes.forEach(function(d) { d.y = d.depth * 180; });
+  nodes.forEach(function(d) { d.y = lefty*d.depth * 180; });
 
   // Declare the nodes
   var node = svg.selectAll("g.node")
@@ -88,16 +98,26 @@ function update(source) {
    .attr("class", "node")
    .attr("transform", function(d) { 
     return "translate(" + d.y + "," + d.x + ")"; });
-
+/*
   nodeEnter.append("circle")
       .attr("r", 4.5)
       .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+*/
 
+if(winner){
   nodeEnter.append("text")
-   .attr("dy", -15)
+   .attr("dy", -1+topper)
    .attr("text-anchor", "middle")
-   .text(function(d) { return d.name; })
+   .attr("style", "outline: thin solid black;")
+   .style("padding", "5px")
+   .text(function(d) {  return 'Winner: ' + d.name;})
    .style("fill-opacity", 1);
+} else{
+  nodeEnter.append("text")
+   .attr("dy", -1+topper)
+   .attr("text-anchor", "middle")
+   .text(function(d) {  return d.name;})
+   .style("fill-opacity", 1);}
 
   // Declare the links
   var link = svg.selectAll("path.link")
